@@ -3,12 +3,8 @@ import logging
 from typing import Optional
 
 import chainlit as cl
-from llama_index import (
-    ServiceContext,
-    SimpleDirectoryReader,
-    StorageContext,
-    VectorStoreIndex,
-)
+from llama_index import (ServiceContext, SimpleDirectoryReader, StorageContext,
+                         VectorStoreIndex)
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
 from llama_index.llms import OpenAILike
 from llama_index.vector_stores import ChromaVectorStore
