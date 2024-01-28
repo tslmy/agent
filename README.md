@@ -24,5 +24,7 @@ This repo uses pre-commit hooks to automate many chores. [Install](https://pre-c
 As a Python-based project, this repo registers all its dependencies in the `pyproject.toml` file. Use Poetry to [install](https://python-poetry.org/docs/basic-usage/#installing-dependencies) them.
 
 ```bash
-poetry install
+poetry install --no-root
 ```
+
+We use `--no-root` because we don't want to install the project itself as a dependency. It's an application, not a library.
