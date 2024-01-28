@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "agent"
+version = "0.1.0"
+description = "A LLM-powered agent."
+authors = ["Mingyang Li <github-agent@myli.page>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+llama-index = "^0.9.39"
+chainlit = "^1.0.200"
+rich = "^13.7.0"
+arize-phoenix = "^2.7.0"
+llama-hub = "^0.0.76"
+chromadb = "^0.4.22"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
