@@ -5,6 +5,21 @@
 
 Runs fully offline.
 
+## Demo
+
+Ask it:
+
+> Name a type of drink that I enjoy, and then look up its country of origin. Be concise.
+
+and it will say:
+
+> Based on the available evidence, it appears that coffee may have originated in either Ethiopia or Yemen. However, as the legend of Kaldi suggests, Ethiopia has long been associated with coffee's history.
+
+after looking up the user's personal notes and then consulting Wikipedia.
+
+<img width="851" alt="Screenshot 2024-01-28 at 23 32 11" src="https://github.com/tslmy/agent/assets/594058/1ce09f03-1ff5-4e51-bed8-77d281ddad41">
+
+
 ## Usage
 
 Ensure that you have an OpenAI-compatible inference server running at `http://localhost:1234/`. If you're using [LM Studio](https://lmstudio.ai/), a tried-and-true configuration looks like this:
