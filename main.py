@@ -107,7 +107,7 @@ def create_agent(
 async def factory():
     cl.user_session.set(
         "agent",
-        create_agent(should_use_chainlit=True, should_override_system_prompt=False),
+        create_agent(should_use_chainlit=True),
     )
 
 

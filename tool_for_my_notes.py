@@ -70,9 +70,7 @@ def make_tool(service_context):
         metadata=ToolMetadata(
             name="look_up_notes",
             description="""Search the user's notes about a particular keyword.
-                Input should be the keyword that you want to search the user's notes with.
-                Since the search is implemented using a vector similarity search,
-                the more the input is like a piece of note itself, the better the results will be.""",
+                Input should be the keyword that you want to search the user's notes with.""",
             fn_schema=NotesQueryingToolSchema,
         ),
     )
@@ -81,10 +79,15 @@ def make_tool(service_context):
     from llama_index.query_engine import SubQuestionQueryEngine
     from llama_index.question_gen.llm_generators import LLMQuestionGenerator
 
+    from sub_question_generating_prompt_in_keywords import (
+        SUB_QUESTION_PROMPT_TEMPLATE_WITH_KEYWORDS,
+    )
+
     sub_question_query_engine = SubQuestionQueryEngine.from_defaults(
         query_engine_tools=[notes_query_engine_tool],
         question_gen=LLMQuestionGenerator.from_defaults(
-            service_context=service_context
+            service_context=service_context,
+            prompt_template_str=SUB_QUESTION_PROMPT_TEMPLATE_WITH_KEYWORDS,
         ),
         service_context=service_context,
         verbose=True,
@@ -100,9 +103,9 @@ def make_tool(service_context):
             name="about_the_user",
             description="""Provides information about the user themselves, including the user's opinions on a given topic.
             Input should be the topic about which you want to learn about the user. For example, you can ask:
-            - "What does the user think about X?"
-            - "Where has the user been between 12/01/2023 and 12/31/2023?"
-            - "How is the user doing in terms of finances?" """,
+                "What does the user think about X?"
+                "Where has the user been between 12/01/2023 and 12/31/2023?"
+                "How is the user doing in terms of finances?" """,
             fn_schema=AboutTheUserToolSchema,
         ),
     )
