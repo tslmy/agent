@@ -74,9 +74,12 @@ def create_agent(
         # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
         callback_manager=callback_manager,
     )
-    from tool_for_wikipedia import tool as wikipedia_tool
+    from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
 
-    all_tools = [make_tool_for_my_notes(service_context), wikipedia_tool]
+    all_tools = [
+        make_tool_for_my_notes(service_context),
+        make_tool_for_wikipedia(service_context),
+    ]
     # TODO: When we have too many tools for the Agent to comprehend in one go (In other words, the sheer amounts of two
     #  descriptions has taken most of the context window.), try `custom_obj_retriever` in
     #  https://docs.llamaindex.ai/en/latest/examples/agent/multi_document_agents-v1.html.
