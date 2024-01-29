@@ -15,8 +15,8 @@ from llama_index.question_gen.prompts import (
 from llama_index.question_gen.types import SubQuestion
 
 PREFIX = """\
-Given a user question and a list of tools, output a list of relevant sub-query \
-in a Markdown code fence of JSON syntax that, when composed, can help answer the given user question:
+Given a user question and a list of tools, output a few relevant sub-queries (in a Markdown code fence of JSON syntax) \
+that, when composed, can help answer the given user question:
 
 """
 example_output = [

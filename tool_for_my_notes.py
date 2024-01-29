@@ -103,9 +103,7 @@ def make_tool(service_context):
             name="about_the_user",
             description="""Provides information about the user themselves, including the user's opinions on a given topic.
             Input should be the topic about which you want to learn about the user. For example, you can ask:
-                "What does the user think about X?"
-                "Where has the user been between 12/01/2023 and 12/31/2023?"
-                "How is the user doing in terms of finances?" """,
+            "opinions about X", "food that I enjoy", "my financial standing", etc. """,
             fn_schema=AboutTheUserToolSchema,
         ),
     )
