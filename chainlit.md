@@ -1,5 +1,9 @@
 # A Chatbot
 
+<img width="100" alt="logo" src="public/logo_light.png">
+
+_logo generated via MidJourney_
+
 Features:
 
 - **Capable**. This app uses a ReAct agent.
