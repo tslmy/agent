@@ -24,7 +24,10 @@ This repo uses pre-commit hooks to automate many chores. [Install](https://pre-c
 As a Python-based project, this repo registers all its dependencies in the `pyproject.toml` file. Use Poetry to [install](https://python-poetry.org/docs/basic-usage/#installing-dependencies) them.
 
 ```bash
-poetry install --no-root
+PYTHONPATH=. poetry install --no-root
 ```
 
 We use `--no-root` because we don't want to install the project itself as a dependency. It's an application, not a library.
+
+As [this article](https://bic-berkeley.github.io/psych-214-fall-2016/using_pythonpath.html) explains:
+> The main use of PYTHONPATH is when we are developing some code that we want to be able to import from Python, but that we have not yet made into an installable Python package.

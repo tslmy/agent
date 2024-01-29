@@ -225,12 +225,9 @@ def create_agent(
         # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
         callback_manager=callback_manager,
     )
-    # `pip install llama-hub`
-    from llama_hub.tools.wikipedia import WikipediaToolSpec
+    from tool_for_wikipedia import tool as wikipedia_tool
 
-    tool_spec = WikipediaToolSpec()
-    wikipedia_tools = tool_spec.to_tool_list()
-    all_tools = [__create_tool_for_learning_about_me(service_context)] + wikipedia_tools
+    all_tools = [__create_tool_for_learning_about_me(service_context), wikipedia_tool]
     # TODO: When we have too many tools for the Agent to comprehend in one go (In other words, the sheer amounts of two
     #  descriptions has taken most of the context window.), try `custom_obj_retriever` in
     #  https://docs.llamaindex.ai/en/latest/examples/agent/multi_document_agents-v1.html.
