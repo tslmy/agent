@@ -11,6 +11,8 @@ Ensure that you have an OpenAI-compatible inference server running at `http://lo
 
 <img width="800" alt="Screenshot of a tried-and-true configuration" src="https://github.com/tslmy/agent/assets/594058/6af66e62-510f-42a6-86ee-f0dcb64eea08">
 
+Tips: The LLM may be biased to generate "Observations" when it is only supposed to generate up to "Action Input". To mitigate this problem, add "Observation:" as a _Stop String_ in LM Studio, so that LM Studio will stop the LLM from generating any more text after it sees "Observation:".
+
 Then, run the script:
 
 ```bash
