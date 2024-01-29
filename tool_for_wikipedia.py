@@ -17,7 +17,10 @@ def make_tool(service_context: ServiceContext):
         reader,
         index_kwargs={"service_context": service_context},
         name="look_up_wikipedia",
-        description="Looks up information from Wikipedia pages. MUST provide non-empty `pages` and non-empty `query_str`.",
+        description="""Looks up information from Wikipedia pages.
+For example, to answer "Who proposed general relativity?", you can use the following Action Input:
+{"pages": ["General relativity"], "query_str": "Who proposed general relativity?"}
+""",
     )
 
 
