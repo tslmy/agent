@@ -3,6 +3,7 @@ Largely based on https://docs.llamaindex.ai/en/stable/examples/tools/OnDemandLoa
 """
 
 from llama_index import ServiceContext
+from llama_index.agent import ReActAgent
 from llama_index.llms import OpenAILike
 from llama_index.readers.wikipedia import WikipediaReader
 from llama_index.tools.ondemand_loader_tool import OnDemandLoaderTool
@@ -15,7 +16,7 @@ def make_tool(service_context: ServiceContext):
         reader,
         index_kwargs={"service_context": service_context},
         name="look_up_wikipedia",
-        description="Looks up information from Wikipedia pages. MUST provide `pages` and `query_str`.",
+        description="Looks up information from Wikipedia pages. MUST provide non-empty `pages` and non-empty `query_str`.",
     )
 
 
@@ -44,4 +45,11 @@ if __name__ == "__main__":
     )
     tool = make_tool(service_context)
     result = tool.call(pages=["Coffee"], query_str="Which country first drink coffee?")
-    print(result)
+    print("Using just the tool itself:", result)
+    agent = ReActAgent.from_tools(
+        tools=[tool],
+        llm=local_llm,
+        verbose=True,
+    )
+    result = agent.query("Which country first drink coffee?")
+    print("Using the tool via an agent:", result)
