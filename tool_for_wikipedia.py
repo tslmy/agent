@@ -2,11 +2,12 @@
 Largely based on https://docs.llamaindex.ai/en/stable/examples/tools/OnDemandLoaderTool.html.
 """
 
-from llama_index import ServiceContext
+from llama_index import ServiceContext, download_loader
 from llama_index.agent import ReActAgent
 from llama_index.llms import OpenAILike
-from llama_index.readers.wikipedia import WikipediaReader
 from llama_index.tools.ondemand_loader_tool import OnDemandLoaderTool
+
+WikipediaReader = download_loader("WikipediaReader")
 
 reader = WikipediaReader()
 
