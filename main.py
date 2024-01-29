@@ -105,7 +105,10 @@ def create_agent(
 
 @cl.on_chat_start
 async def factory():
-    cl.user_session.set("agent", create_agent(should_use_chainlit=True))
+    cl.user_session.set(
+        "agent",
+        create_agent(should_use_chainlit=True, should_override_system_prompt=False),
+    )
 
 
 @cl.on_message

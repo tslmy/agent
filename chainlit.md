@@ -1,6 +1,6 @@
 # A Chatbot
 
-<img width="100" alt="logo" src="public/logo_light.png">
+![logo](public/logo_light.png)
 
 _logo generated via MidJourney_
 
