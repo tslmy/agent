@@ -52,6 +52,7 @@ def create_agent(
     local_llm = OpenAILike(
         api_base="http://localhost:1234/v1",
         timeout=600,  # secs
+        temperature=0.01,
         api_key="loremIpsum",
         # Honestly, this model name can be arbitrary.
         # I'm using this: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta .

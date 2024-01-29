@@ -10,5 +10,5 @@ reader = WikipediaReader()
 tool = OnDemandLoaderTool.from_defaults(
     reader,
     name="look_up_wikipedia",
-    description="A tool for loading and querying articles from Wikipedia",
+    description="Looks up information from Wikipedia pages. MUST provide `pages` and `query_str`.",
 )
