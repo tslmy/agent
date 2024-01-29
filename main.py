@@ -227,6 +227,11 @@ def create_agent(
     tool_spec = WikipediaToolSpec()
     wikipedia_tools = tool_spec.to_tool_list()
     all_tools = [__create_tool_for_learning_about_me(service_context)] + wikipedia_tools
+    # TODO: When we have too many tools for the Agent to comprehend in one go (In other words, the sheer amounts of two
+    #  descriptions has taken most of the context window.), try `custom_obj_retriever` in
+    #  https://docs.llamaindex.ai/en/latest/examples/agent/multi_document_agents-v1.html.
+    #  This will allow us to retrieve the tools, instead of having to hardcode them in the code.
+
     from llama_index.agent.react.formatter import ReActChatFormatter
 
     if should_override_system_prompt:
