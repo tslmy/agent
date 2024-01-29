@@ -3,6 +3,7 @@ Largely based on https://docs.llamaindex.ai/en/stable/examples/tools/OnDemandLoa
 """
 
 from llama_index import ServiceContext
+from llama_index.llms import OpenAILike
 from llama_index.readers.wikipedia import WikipediaReader
 from llama_index.tools.ondemand_loader_tool import OnDemandLoaderTool
 
@@ -16,3 +17,31 @@ def make_tool(service_context: ServiceContext):
         name="look_up_wikipedia",
         description="Looks up information from Wikipedia pages. MUST provide `pages` and `query_str`.",
     )
+
+
+if __name__ == "__main__":
+    local_llm = OpenAILike(
+        api_base="http://localhost:1234/v1",
+        timeout=600,  # secs
+        temperature=0.01,
+        api_key="loremIpsum",
+        # Honestly, this model name can be arbitrary.
+        # I'm using this: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta .
+        model="zephyr beta 7B q5_k_m gguf",
+        is_chat_model=True,
+        is_function_calling_model=True,
+        context_window=32768,
+    )
+
+    service_context = ServiceContext.from_defaults(
+        # https://docs.llamaindex.ai/en/stable/module_guides/models/embeddings.html#local-embedding-models
+        # HuggingFaceEmbedding requires transformers and PyTorch to be installed.
+        # Run `pip install transformers torch`.
+        embed_model="local",
+        # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
+        # But, instead of LocalAI, I'm using "LM Studio".
+        llm=local_llm,
+    )
+    tool = make_tool(service_context)
+    result = tool.call(pages=["Coffee"], query_str="Which country first drink coffee?")
+    print(result)
