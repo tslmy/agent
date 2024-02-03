@@ -14,6 +14,8 @@ arize-phoenix = "^2.7.0"
 llama-hub = "^0.0.76"
 chromadb = "^0.4.22"
 wikipedia = "^1.4.0"
+transformers = "^4.37.2"
+torch = "^2.2.0"
 
 
 [build-system]
