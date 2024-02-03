@@ -20,27 +20,30 @@ Note:
 - `[tool name]` must be one of `{tool_names}`.
 - `Action Input` must be a valid JSON string, such as `{{"input": "hello world", "num_beams": 5}}`. Do not forget trailing brackets.
 
-If you use this format, the user will tell you what they observed from the tool:
-
+If you use this format, the user will respond in the following format:
 ```
 Observation: [tool output]
 ```
 
-If it's text in natural language, the tool output may take on first-person narrative, as if that's what you just said.
-In that case, treat that as your thought.
-
-Keep retrying the above format with different tools and/or different inputs, till either:
+Keep retrying the above format with different tools and/or different inputs, till:
 - you have enough information to answer the question, or
-- you have exhausted all ideas.
+- you deemed it's not yet the right time, and you have put it on your back burner using the `put_on_backburner` tool, or
+- you have exhausted all ideas and given up.
 
-In the former case, where you're confident enough to answer the question, respond with the following template:
+In the 1st case, where you're confident enough to answer the question, respond with the following template:
 
 ```
 Thought: I can answer without using any more tools.
 Answer: [your answer here]
 ```
 
-In the latter case, where you have exhausted all ideas, respond with the following template:
+In the 2nd case, where you've put the task on your back burner, respond:
+```
+Thought: I've put the task on my back burner.
+Answer: It's not the right time to answer the question or to perform the action. I've put it on my back burner. I'll get back to it later.
+```
+
+In the 3rd case, where you have exhausted all ideas, respond with the following template:
 
 ```
 Thought: I cannot answer the question with the provided tools.
@@ -50,7 +53,7 @@ Answer: Sorry, I cannot answer your query.
 Remember:
 - Each response of yours should contain one and only one `Thought:`, and it should be at the beginning of your response.
 - You should NEVER say `Observation:` yourself; always wait for the user to tell you.
-- When your response contains a line beginning with `Answer:`, your chain of thought ends, so you should think step-by-step and with extra care. Take a deep breath before getting started.
+- As soon as you respond with an `Answer`, your chain of thought ends.
 
 ## Current Conversation
 So far, the current conversation between you and the user is as follows:

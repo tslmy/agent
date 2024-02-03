@@ -74,9 +74,22 @@ def create_agent(
         # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
         callback_manager=callback_manager,
     )
+
+    from llama_index.memory import ChatMemoryBuffer
+    from llama_index.storage.chat_store import SimpleChatStore
+
+    chat_store = SimpleChatStore()
+    chat_memory = ChatMemoryBuffer.from_defaults(
+        llm=local_llm,
+        token_limit=3000,
+        chat_store=chat_store,
+        chat_store_key="user1",
+    )
+
+    from tool_for_backburner import make_tools as make_tools_for_backburner
     from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
 
-    all_tools = [
+    all_tools = make_tools_for_backburner(service_context, chat_store=chat_store) + [
         make_tool_for_my_notes(service_context),
         make_tool_for_wikipedia(service_context),
     ]
@@ -104,6 +117,7 @@ def create_agent(
         verbose=True,
         react_chat_formatter=chat_formatter,
         callback_manager=callback_manager,
+        memory=chat_memory,
     )
 
 

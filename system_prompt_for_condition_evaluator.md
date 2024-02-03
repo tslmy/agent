@@ -22,14 +22,10 @@ Note:
 - `[tool name]` must be one of `{tool_names}`.
 - `Action Input` must be a valid JSON string, such as `{{"input": "hello world", "num_beams": 5}}`. Do not forget trailing brackets.
 
-If you use this format, the user will tell you what they observed from the tool:
-
+If you use this format, the user will respond in the following format:
 ```
 Observation: [tool output]
 ```
-
-If it's text in natural language, the tool output may take on first-person narrative, as if that's what you just said.
-In that case, treat that as your thought.
 
 Keep retrying the above format with different tools and/or different inputs, till either:
 - you have enough information to evaluate the condition, or you have exhausted all ideas.
