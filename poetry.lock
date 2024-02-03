@@ -1479,13 +1479,13 @@ retrying = "*"
 
 [[package]]
 name = "llama-index"
-version = "0.9.42.post1"
+version = "0.9.43"
 description = "Interface between LLMs and your data"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index-0.9.42.post1-py3-none-any.whl", hash = "sha256:62736a9c164274c9deca6e11564a47b2aa2b643928d3023908695be5a9d91331"},
-    {file = "llama_index-0.9.42.post1.tar.gz", hash = "sha256:6b5f1727b412e9533f68926d387777795a5d4d48975a8b20d211360c2f4c868e"},
+    {file = "llama_index-0.9.43-py3-none-any.whl", hash = "sha256:a1fc3d05539a303423620a7d259c95085af218234a8f9c10c0b3d711d672b64a"},
+    {file = "llama_index-0.9.43.tar.gz", hash = "sha256:db1d7c2636590c4ea59646df53a0274c218d2f0cb93f30e12124bc0b4bb34773"},
 ]
 
 [package.dependencies]
@@ -2234,13 +2234,13 @@ sympy = "*"
 
 [[package]]
 name = "openai"
-version = "1.10.0"
+version = "1.11.0"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.10.0-py3-none-any.whl", hash = "sha256:aa69e97d0223ace9835fbf9c997abe9ee95318f684fd2de6d02c870700c71ebc"},
-    {file = "openai-1.10.0.tar.gz", hash = "sha256:208886cb501b930dc63f48d51db9c15e5380380f80516d07332adad67c9f1053"},
+    {file = "openai-1.11.0-py3-none-any.whl", hash = "sha256:05abd618db093be1d2a16d3281136c163ddf57d7fe8fdf82c8b1edda6099c0b0"},
+    {file = "openai-1.11.0.tar.gz", hash = "sha256:52bc4881efd04a548998c7bdcbfe234f642ce2817ce64cd207d0caccaf0b50ad"},
 ]
 
 [package.dependencies]
