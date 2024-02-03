@@ -11,6 +11,7 @@ from llama_index import (
     StorageContext,
     VectorStoreIndex,
 )
+from llama_index.tools import BaseTool
 from llama_index.vector_stores import ChromaVectorStore
 from pydantic import BaseModel
 
@@ -44,7 +45,7 @@ def __create_index(
     )
 
 
-def make_tool(service_context):
+def make_tool(service_context: ServiceContext) -> BaseTool:
     """
     Creates a tool for accessing my private information, or anything about me.
     These can be my notes, my calendar, my emails, etc.
