@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 import logging
-from typing import List, Optional, Sequence
 
 import chainlit as cl
 from llama_index import ServiceContext
-from llama_index.agent.react.types import BaseReasoningStep, ObservationReasoningStep
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.core.llms.types import ChatMessage
 from llama_index.llms import OpenAILike
-from llama_index.tools import BaseTool
 from rich.logging import RichHandler
-
-from tool_for_backburner import I_WILL_GET_BACK_TO_IT
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
 logging.basicConfig(
@@ -48,9 +42,7 @@ def create_callback_manager(should_use_chainlit: bool = True):
 from llama_index.agent import ReActAgent
 
 
-def create_agent(
-    should_use_chainlit: bool, should_override_system_prompt: bool = True
-) -> ReActAgent:
+def create_agent(should_use_chainlit: bool) -> ReActAgent:
     callback_manager = create_callback_manager(should_use_chainlit)
 
     local_llm = OpenAILike(
@@ -64,6 +56,7 @@ def create_agent(
         is_chat_model=True,
         is_function_calling_model=True,
         context_window=32768,
+        streaming=True,
         callback_manager=callback_manager,
     )
 
@@ -104,14 +97,9 @@ def create_agent(
     #  https://docs.llamaindex.ai/en/latest/examples/agent/multi_document_agents-v1.html.
     #  This will allow us to retrieve the tools, instead of having to hardcode them in the code.
 
-    if should_override_system_prompt:
-        from my_react_chat_formatter import MyReActChatFormatter
+    from my_react_chat_formatter import MyReActChatFormatter
 
-        chat_formatter = MyReActChatFormatter()
-    else:
-        from llama_index.agent.react.formatter import ReActChatFormatter
-
-        chat_formatter = ReActChatFormatter()
+    chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
         tools=all_tools,
         llm=local_llm,

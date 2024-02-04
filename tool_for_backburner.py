@@ -135,15 +135,7 @@ tools_for_performing_actions = [
 def create_agent_for_performing_actions(
     service_context: ServiceContext,
 ) -> ReActAgent:
-
-    from llama_index.agent.react.formatter import ReActChatFormatter
-
-    # Override the default system prompt for ReAct chats.
-    with open("system_prompt.md") as f:
-        MY_SYSTEM_PROMPT = f.read()
-
-    class MyReActChatFormatter(ReActChatFormatter):
-        system_header = MY_SYSTEM_PROMPT
+    from my_react_chat_formatter import MyReActChatFormatter
 
     chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
