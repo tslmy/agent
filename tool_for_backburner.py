@@ -40,14 +40,6 @@ logging.basicConfig(
 )
 
 
-@dataclass
-class BackburnerEntry:
-    condition: str
-    action: str
-    action_input: str
-    messages_till_last_observation: List[ChatMessage]
-
-
 class ConditionStatus(Enum):
     MET = 1
     NOT_YET_MET = 2
@@ -151,10 +143,9 @@ def create_agent_for_performing_actions(
     )
 
 
-threads = []
-
-
-def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseTool]:
+def make_tools(
+    service_context: ServiceContext, chat_store=None, backburner_sidebar=None
+) -> List[BaseTool]:
 
     tools_for_performing_actions: List[BaseTool] = []
 
@@ -179,24 +170,11 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
             If you want to walk the dog when the sky clears up, you can use the following input:
             {"condition": "sunny weather", "action": "walk_the_dog", "action_input": "{}"}
         """
-        logger = logging.getLogger("put_on_backburner")
-        messages_so_far = chat_store.get_messages("user1")
-        logger.info(
-            f"Putting the action `{action}` on the back burner. Messages so far: {messages_so_far}. Keys: {chat_store.get_keys()}"
+        # Start the background task of `check_backburner`.
+        wait_thread = Thread(
+            target=check_backburner, args=(condition, action, action_input)
         )
-        if len(messages_so_far) > 2:
-            # Remove the last Observation message and the subsequent "I think the time isn't right" message.
-            messages_till_last_observation = messages_so_far[-2]
-        else:
-            logger.warning("Something isn't right.")
-            messages_till_last_observation = messages_so_far
-        entry = BackburnerEntry(
-            condition, action, action_input, messages_till_last_observation
-        )
-        # Start the background task of `__check_backburner`.
-        wait_thread = Thread(target=check_backburner, args=(entry,))
         wait_thread.start()
-        threads.append(wait_thread)
         return I_WILL_GET_BACK_TO_IT
 
     agent_for_evaluating_conditions = create_agent_for_evaluating_conditions(
@@ -272,7 +250,7 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         await response_message.send()
         return response
 
-    def check_backburner(entry: BackburnerEntry):
+    def check_backburner(condition: str, action: str, action_input: str):
         """
         Check if the conditions of any action on the back burner have become true. If so, perform the action and remove it from the back burner.
         """
@@ -280,27 +258,34 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
 
         logger = logging.getLogger("check_backburner")
         num_check = 0
+        task_on_ui = cl.Task(title=f"{action}", status=cl.TaskStatus.RUNNING)
+        asyncio.run(backburner_sidebar.add_task(task_on_ui))
+        asyncio.run(backburner_sidebar.send())
         while True:
             sleep(10)
             num_check += 1
             logger.info(
-                f"Checking the condition of `{entry.action}` for the {num_check}th time: Has `{entry.condition}` been met yet?"
+                f"Checking the condition of `{action}` for the {num_check}th time: Has `{condition}` been met yet?"
             )
-            condition_status = evaluate_condition(entry.condition)
+            condition_status = evaluate_condition(condition)
             if condition_status == ConditionStatus.MET:
-                logger.info(f"Time seems right for `{entry.action}`! Performing it.")
+                logger.info(f"Time seems right for `{action}`! Performing it.")
                 result = asyncio.run(
                     __perform_action(
-                        entry.action,
-                        entry.action_input,
+                        action,
+                        action_input,
                     )
                 )
                 logger.info(f"Result of performing the action: {result}")
+                task_on_ui.status = cl.TaskStatus.DONE
+                asyncio.run(backburner_sidebar.send())
                 return
             elif condition_status == ConditionStatus.WILL_NEVER_BE_MET:
                 logger.warning(
-                    f"Yikes! `{entry.condition}` will never be met. Removing `{entry.action}` from the back burner."
+                    f"Yikes! `{condition}` will never be met. Removing `{action}` from the back burner."
                 )
+                task_on_ui.status = cl.TaskStatus.FAILED
+                asyncio.run(backburner_sidebar.send())
                 return
 
     return [

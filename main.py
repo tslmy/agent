@@ -43,7 +43,9 @@ from llama_index.agent import ReActAgent
 
 
 def create_agent(
-    should_use_chainlit: bool, is_general_purpose: bool = False
+    should_use_chainlit: bool,
+    is_general_purpose: bool = False,
+    task_list: cl.TaskList = None,
 ) -> ReActAgent:
     callback_manager = create_callback_manager(should_use_chainlit)
 
@@ -89,7 +91,9 @@ def create_agent(
     from tool_for_my_notes import make_tool as make_tool_for_my_notes
     from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
 
-    all_tools = make_tools_for_backburner(service_context, chat_store=chat_store)
+    all_tools = make_tools_for_backburner(
+        service_context, chat_store=chat_store, backburner_sidebar=task_list
+    )
     if is_general_purpose:
         all_tools += [
             make_tool_for_my_notes(service_context),
@@ -115,9 +119,13 @@ def create_agent(
 
 @cl.on_chat_start
 async def factory():
+    # Create the TaskList
+    task_list = cl.TaskList()
+    task_list.status = 'The "back burner"'
+    await task_list.send()
     cl.user_session.set(
         "agent",
-        create_agent(should_use_chainlit=True),
+        create_agent(should_use_chainlit=True, task_list=task_list),
     )
 
 
