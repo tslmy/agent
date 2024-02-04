@@ -246,6 +246,7 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
         response = response.response
         logger.info(f"Action performing response: {response}")
         # Add the response as a chat history.
+        # TODO: This assumes that we are using ChainLit.
         agent: ReActAgent = cl.user_session.get("agent")
         agent.chat_history.append(
             ChatMessage(role=MessageRole.ASSISTANT, content=response)

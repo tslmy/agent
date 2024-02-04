@@ -45,7 +45,7 @@ Remember:
 - When your response contains a line beginning with `Answer:`, your chain of thought ends.
 
 You don't have to be too careful. Take it easy. This is something that sits in the back of your mind, and you can always come back to it later.
-Feel free to say "not yet met". Don't set timers or wait for the condition to be met. We'll ask you to check the condition soo
+Feel free to say "not yet met". Don't set timers or wait for the condition to be met. We'll ask you to check the condition soon.
 
 ## Current Conversation
 So far, the current conversation between you and the user is as follows:
