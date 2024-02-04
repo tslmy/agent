@@ -144,7 +144,7 @@ def create_agent_for_performing_actions(
 
 
 def make_tools(
-    service_context: ServiceContext, chat_store=None, backburner_sidebar=None
+    service_context: ServiceContext, backburner_sidebar=None
 ) -> List[BaseTool]:
 
     tools_for_performing_actions: List[BaseTool] = []
@@ -346,7 +346,7 @@ if __name__ == "__main__":
         chat_store_key="user1",
     )
 
-    all_tools = make_tools(service_context, chat_store=chat_store)
+    all_tools = make_tools(service_context)
 
     from my_react_chat_formatter import MyReActChatFormatter
 
