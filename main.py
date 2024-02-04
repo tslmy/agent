@@ -125,14 +125,6 @@ async def factory():
 async def main(message: cl.Message):
     """
     ChainLit provides a web GUI for this application.
-
-    See https://docs.chainlit.io/integrations/llama-index.
-
-    Usage:
-
-    ```shell
-    chainlit run llama-index.py -w
-    ```
     """
     agent: ReActAgent = cl.user_session.get("agent")
     response = await agent.achat(message.content)

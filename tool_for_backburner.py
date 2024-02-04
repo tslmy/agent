@@ -63,25 +63,26 @@ class EmptyToolSchema(BaseModel):
     pass
 
 
-def __tool_for_checking_the_weather(*args, **kwargs):
-    """
-    Checks the local weather. (Takes an empty `{}` as input.)
-    """
-    # A stub for checking the weather.
-    #
-    # In case you get confused between a stub and a mock, here's a quick reminder:
-    # > Stub: Like a mock class, except that it doesn't provide the ability to verify that methods have been called/not called.
-    # (via https://stackoverflow.com/q/346372/1147061)
-    global is_raining
-    if is_raining:
-        is_raining = False
-        return "It is raining outside."
-    return "It is sunny outside."
-
-
 def create_agent_for_evaluating_conditions(
     service_context: ServiceContext,
 ) -> ReActAgent:
+    # ------------------- Define tools of this agent here -------------------
+
+    def __tool_for_checking_the_weather(*args, **kwargs):
+        """
+        Checks the local weather. (Takes an empty `{}` as input.)
+        """
+        # A stub for checking the weather.
+        #
+        # In case you get confused between a stub and a mock, here's a quick reminder:
+        # > Stub: Like a mock class, except that it doesn't provide the ability to verify that methods have been called/not called.
+        # (via https://stackoverflow.com/q/346372/1147061)
+        global is_raining
+        if is_raining:
+            is_raining = False
+            return "It is raining outside."
+        return "It is sunny outside."
+
     all_tools = [
         FunctionTool(
             __tool_for_checking_the_weather,
@@ -92,6 +93,7 @@ def create_agent_for_evaluating_conditions(
             ),
         )
     ]
+    # -----------------------------------------------------------------------
     from llama_index.agent.react.formatter import ReActChatFormatter
 
     # Override the default system prompt for ReAct chats.
@@ -111,35 +113,37 @@ def create_agent_for_evaluating_conditions(
     )
 
 
-def __tool_for_walking_the_dog(*args, **kwargs):
-    """
-    Walks the dog. (Takes an empty `{}` as input.)
-    """
-    if is_raining:
-        return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
-    return "The dog enjoyed the walk outside in the sunshine. Well done!"
-
-
-tools_for_performing_actions = [
-    FunctionTool(
-        __tool_for_walking_the_dog,
-        metadata=ToolMetadata(
-            name="walk_the_dog",
-            description=__tool_for_walking_the_dog.__doc__,
-            fn_schema=EmptyToolSchema,
-        ),
-    )
-]
-
-
 def create_agent_for_performing_actions(
     service_context: ServiceContext,
+    container_for_tools_for_performing_actions: List[BaseTool],
 ) -> ReActAgent:
+    # ------------------- Define tools of this agent here -------------------
+
+    def __tool_for_walking_the_dog(*args, **kwargs):
+        """
+        Walks the dog. (Takes an empty `{}` as input.)
+        """
+        if is_raining:
+            return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
+        return "The dog enjoyed the walk outside in the sunshine. Well done!"
+
+    container_for_tools_for_performing_actions.append(
+        FunctionTool(
+            __tool_for_walking_the_dog,
+            metadata=ToolMetadata(
+                name="walk_the_dog",
+                description=__tool_for_walking_the_dog.__doc__,
+                fn_schema=EmptyToolSchema,
+            ),
+        )
+    )
+    # -----------------------------------------------------------------------
+
     from my_react_chat_formatter import MyReActChatFormatter
 
     chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
-        tools=tools_for_performing_actions,
+        tools=container_for_tools_for_performing_actions,
         llm=service_context.llm,
         verbose=True,
         react_chat_formatter=chat_formatter,
@@ -151,6 +155,9 @@ threads = []
 
 
 def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseTool]:
+
+    tools_for_performing_actions: List[BaseTool] = []
+
     class BackburnerPuttingToolSchema(BaseModel):
         condition: str
         action: str
@@ -223,7 +230,10 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         else:
             return ConditionStatus.MET
 
-    agent_for_performing_actions = create_agent_for_performing_actions(service_context)
+    agent_for_performing_actions = create_agent_for_performing_actions(
+        service_context,
+        container_for_tools_for_performing_actions=tools_for_performing_actions,
+    )
 
     import chainlit as cl
 
@@ -310,7 +320,7 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
                 fn_schema=BackburnerPuttingToolSchema,
             ),
         ),
-    ] + tools_for_performing_actions  # We also need to expose the action-performing tools to the top-level agent, so that it can know what preconditions each tool demands, as well as just perform the actions if the precondition is met already.
+    ] + tools_for_performing_actions
 
 
 if __name__ == "__main__":
