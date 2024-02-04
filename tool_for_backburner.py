@@ -61,12 +61,17 @@ is_raining = True
 
 def __tool_for_checking_the_weather(*args, **kwargs):
     """
-    A stub for checking the weather.
-
-    In case you get confused between a stub and a mock, here's a quick reminder:
-    > Stub: Like a mock class, except that it doesn't provide the ability to verify that methods have been called/not called.
-    (via https://stackoverflow.com/q/346372/1147061)
+    Checks the local weather.
+    Arguments:
+        None.
+    Example:
+        {}
     """
+    # A stub for checking the weather.
+    #
+    # In case you get confused between a stub and a mock, here's a quick reminder:
+    # > Stub: Like a mock class, except that it doesn't provide the ability to verify that methods have been called/not called.
+    # (via https://stackoverflow.com/q/346372/1147061)
     global is_raining
     if is_raining:
         is_raining = False
@@ -82,7 +87,7 @@ def create_agent_for_evaluating_conditions(
             __tool_for_checking_the_weather,
             metadata=ToolMetadata(
                 name="check_weather",
-                description="Checks the weather.",
+                description=__tool_for_checking_the_weather.__doc__,
             ),
         )
     ]
@@ -112,6 +117,10 @@ class DogWalkingToolSchema(BaseModel):
 def __tool_for_walking_the_dog(*args, **kwargs):
     """
     Walks the dog. Requires a sunny weather.
+    Arguments:
+        None.
+    Example:
+        {}
     """
     if is_raining:
         return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."

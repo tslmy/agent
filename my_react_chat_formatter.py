@@ -43,7 +43,6 @@ class MyReActChatFormatter(ReActChatFormatter):
                     self.system_header = MY_SYSTEM_PROMPT.replace(
                         "<x1>", PROMPT_FOR_BACKBURNER
                     )
-
                 else:
                     self.system_header = MY_SYSTEM_PROMPT.replace("<x1>", "")
         messages = super().format(tools, chat_history, current_reasoning)
