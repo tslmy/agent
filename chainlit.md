@@ -39,7 +39,7 @@ When the precondition is met, we resume the task. Append the task result to the 
 
 ## Demo
 
-Ask the AI,** "Please go walk the dog."** It will say "It's raining; maybe later".
+Ask the AI, **"Please go walk the dog."** It will say "It's raining; maybe later".
 
 Continue the conversation by talking about something else. Perhaps **"how are you feeling right now"**. The chatbot will follow the flow.
 
