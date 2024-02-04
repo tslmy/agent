@@ -42,7 +42,9 @@ def create_callback_manager(should_use_chainlit: bool = True):
 from llama_index.agent import ReActAgent
 
 
-def create_agent(should_use_chainlit: bool) -> ReActAgent:
+def create_agent(
+    should_use_chainlit: bool, is_general_purpose: bool = False
+) -> ReActAgent:
     callback_manager = create_callback_manager(should_use_chainlit)
 
     local_llm = OpenAILike(
@@ -84,14 +86,15 @@ def create_agent(should_use_chainlit: bool) -> ReActAgent:
     )
 
     from tool_for_backburner import make_tools as make_tools_for_backburner
+    from tool_for_my_notes import make_tool as make_tool_for_my_notes
+    from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
 
-    # from tool_for_my_notes import make_tool as make_tool_for_my_notes
-    # from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
-
-    all_tools = make_tools_for_backburner(service_context, chat_store=chat_store)  # + [
-    #     make_tool_for_my_notes(service_context),
-    #     make_tool_for_wikipedia(service_context),
-    # ]
+    all_tools = make_tools_for_backburner(service_context, chat_store=chat_store)
+    if is_general_purpose:
+        all_tools += [
+            make_tool_for_my_notes(service_context),
+            make_tool_for_wikipedia(service_context),
+        ]
     # TODO: When we have too many tools for the Agent to comprehend in one go (In other words, the sheer amounts of two
     #  descriptions has taken most of the context window.), try `custom_obj_retriever` in
     #  https://docs.llamaindex.ai/en/latest/examples/agent/multi_document_agents-v1.html.
