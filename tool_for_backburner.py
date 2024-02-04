@@ -143,9 +143,7 @@ def create_agent_for_performing_actions(
     )
 
 
-def make_tools(
-    service_context: ServiceContext, backburner_sidebar=None
-) -> List[BaseTool]:
+def make_tools(service_context: ServiceContext) -> List[BaseTool]:
 
     tools_for_performing_actions: List[BaseTool] = []
 
@@ -274,13 +272,11 @@ def make_tools(
                     )
                 )
                 logger.info(f"Result of performing the action: {result}")
-                asyncio.run(backburner_sidebar.send())
                 return
             elif condition_status == ConditionStatus.WILL_NEVER_BE_MET:
                 logger.warning(
                     f"Yikes! `{condition}` will never be met. Removing `{action}` from the back burner."
                 )
-                asyncio.run(backburner_sidebar.send())
                 return
 
     return [
