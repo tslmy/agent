@@ -258,9 +258,6 @@ def make_tools(
 
         logger = logging.getLogger("check_backburner")
         num_check = 0
-        task_on_ui = cl.Task(title=f"{action}", status=cl.TaskStatus.RUNNING)
-        asyncio.run(backburner_sidebar.add_task(task_on_ui))
-        asyncio.run(backburner_sidebar.send())
         while True:
             sleep(10)
             num_check += 1
@@ -277,14 +274,12 @@ def make_tools(
                     )
                 )
                 logger.info(f"Result of performing the action: {result}")
-                task_on_ui.status = cl.TaskStatus.DONE
                 asyncio.run(backburner_sidebar.send())
                 return
             elif condition_status == ConditionStatus.WILL_NEVER_BE_MET:
                 logger.warning(
                     f"Yikes! `{condition}` will never be met. Removing `{action}` from the back burner."
                 )
-                task_on_ui.status = cl.TaskStatus.FAILED
                 asyncio.run(backburner_sidebar.send())
                 return
 
