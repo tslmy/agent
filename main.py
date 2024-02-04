@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 import logging
+from typing import List, Optional, Sequence
 
 import chainlit as cl
 from llama_index import ServiceContext
+from llama_index.agent.react.types import BaseReasoningStep, ObservationReasoningStep
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
+from llama_index.core.llms.types import ChatMessage
 from llama_index.llms import OpenAILike
+from llama_index.tools import BaseTool
 from rich.logging import RichHandler
 
-from tool_for_my_notes import make_tool as make_tool_for_my_notes
+from tool_for_backburner import I_WILL_GET_BACK_TO_IT
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
 logging.basicConfig(
@@ -87,29 +91,26 @@ def create_agent(
     )
 
     from tool_for_backburner import make_tools as make_tools_for_backburner
-    from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
 
-    all_tools = make_tools_for_backburner(service_context, chat_store=chat_store) + [
-        make_tool_for_my_notes(service_context),
-        make_tool_for_wikipedia(service_context),
-    ]
+    # from tool_for_my_notes import make_tool as make_tool_for_my_notes
+    # from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
+
+    all_tools = make_tools_for_backburner(service_context, chat_store=chat_store)  # + [
+    #     make_tool_for_my_notes(service_context),
+    #     make_tool_for_wikipedia(service_context),
+    # ]
     # TODO: When we have too many tools for the Agent to comprehend in one go (In other words, the sheer amounts of two
     #  descriptions has taken most of the context window.), try `custom_obj_retriever` in
     #  https://docs.llamaindex.ai/en/latest/examples/agent/multi_document_agents-v1.html.
     #  This will allow us to retrieve the tools, instead of having to hardcode them in the code.
 
-    from llama_index.agent.react.formatter import ReActChatFormatter
-
     if should_override_system_prompt:
-        # Override the default system prompt for ReAct chats.
-        with open("system_prompt.md") as f:
-            MY_SYSTEM_PROMPT = f.read()
-
-        class MyReActChatFormatter(ReActChatFormatter):
-            system_header = MY_SYSTEM_PROMPT
+        from my_react_chat_formatter import MyReActChatFormatter
 
         chat_formatter = MyReActChatFormatter()
     else:
+        from llama_index.agent.react.formatter import ReActChatFormatter
+
         chat_formatter = ReActChatFormatter()
     return ReActAgent.from_tools(
         tools=all_tools,

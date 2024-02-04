@@ -22,12 +22,22 @@ from threading import Thread
 from typing import List
 
 from llama_index import ServiceContext
+from llama_index.callbacks import CallbackManager, LlamaDebugHandler
 from llama_index.core.llms.types import ChatMessage
 from llama_index.llms import OpenAILike
 from llama_index.tools import BaseTool, FunctionTool, ToolMetadata
 from pydantic import BaseModel
+from rich.logging import RichHandler
 
-logging.basicConfig(level=logging.INFO)
+I_WILL_GET_BACK_TO_IT = "I'll keep an eye on it. I've put this on the back burner. Consider this done for now. I can now answer without using any more tools by just saying I'll get back to it later."
+
+# https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(rich_tracebacks=True)],
+)
 
 
 @dataclass
@@ -95,9 +105,16 @@ def create_agent_for_evaluating_conditions(
     )
 
 
+class DogWalkingToolSchema(BaseModel):
+    pass
+
+
 def __tool_for_walking_the_dog(*args, **kwargs):
+    """
+    Walks the dog. Requires a sunny weather.
+    """
     if is_raining:
-        return "The dog doesn't want to go out in the rain. Task failed. You should hold off doing this until it's sunny outside."
+        return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
     return "The dog enjoyed the walk outside in the sunshine. Well done!"
 
 
@@ -106,7 +123,8 @@ tools_for_performing_actions = [
         __tool_for_walking_the_dog,
         metadata=ToolMetadata(
             name="walk_the_dog",
-            description="Walks the dog. Requires a sunny weather.",
+            description=__tool_for_walking_the_dog.__doc__,
+            fn_schema=DogWalkingToolSchema,
         ),
     )
 ]
@@ -144,14 +162,19 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         action: str
         action_input: str
 
-    async def put_on_backburner(condition: str, action: str, action_input: str):
+    def put_on_backburner(
+        condition: str, action: str, action_input: str, *args, **kwargs
+    ):
         """
         When the time isn't yet right to do something, put it on the back burner by using this tool.
 
-        Args:
-        - condition: The condition that has to be true before the action can be performed.
+        Arguments:
+        - condition: The condition that has to be met before the action can be performed.
         - action: The action that has to be performed.
-        - action_input: The input to the action.
+        - action_input: The input to the action to be performed. (Refer to the schema of that tool itself for the exact syntax to put here.)
+
+        Example:
+            {"condition": "sunny weather", "action": "walk_the_dog", "action_input": "{}"}
         """
         logger = logging.getLogger("put_on_backburner")
         messages_so_far = chat_store.get_messages("user1")
@@ -167,14 +190,11 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         entry = BackburnerEntry(
             condition, action, action_input, messages_till_last_observation
         )
-        # # Start the background task of `__check_backburner`.
-        # asyncio.run(check_backburner(entry))
-        # # Kick off the background task right away (https://stackoverflow.com/a/70719307/1147061).
-        # await asyncio.sleep(0)
+        # Start the background task of `__check_backburner`.
         wait_thread = Thread(target=check_backburner, args=(entry,))
         wait_thread.start()
         threads.append(wait_thread)
-        return "I'll keep an eye on it. It's been added to the back burner. Consider this done for now."
+        return I_WILL_GET_BACK_TO_IT
 
     agent_for_evaluating_conditions = create_agent_for_evaluating_conditions(
         service_context
@@ -183,17 +203,17 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
     class ConditionEvaluatingToolSchema(BaseModel):
         condition: str
 
-    def evaluate_condition(condition: str) -> ConditionStatus:
+    def evaluate_condition(condition: str, *args, **kwargs) -> ConditionStatus:
         """
         Evaluate the condition and return its status.
 
-        Args:
+        Arguments:
         - condition: The condition to be evaluated.
-
-        Returns:
-        - The status of the condition.
+        Example:
+            {"condition": "weather is sunny"}
         """
         logger = logging.getLogger("evaluate_condition")
+        logger.info(f"Evaluating the condition: {condition}")
         # Invoke the Agent to use whatever tool it needs in order to evaluate the condition.
         response = agent_for_evaluating_conditions.query(
             f"Evaluate this condition: {condition}"
@@ -216,9 +236,12 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         """
         Perform the action.
 
-        Args:
+        Arguments:
         - action: The action to be performed.
         - action_input: The input to the action.
+
+        Example:
+            {"action": "walk_the_dog", "action_input": "{}"}
         """
         logger = logging.getLogger("perform_action")
         logger.info(
@@ -242,6 +265,7 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         logger = logging.getLogger("check_backburner")
         num_check = 0
         while True:
+            sleep(10)
             num_check += 1
             logger.info(
                 f"Checking the condition of `{entry.action}` for the {num_check}th time: Has `{entry.condition}` been met yet?"
@@ -260,14 +284,13 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
                     f"Yikes! `{entry.condition}` will never be met. Removing `{entry.action}` from the back burner."
                 )
                 return
-            sleep(1)
 
     return [
         FunctionTool(
             evaluate_condition,
             metadata=ToolMetadata(
                 name="evaluate_condition",
-                description="""Evaluates whether a given statement ("condition") has become true or not.""",
+                description=evaluate_condition.__doc__,
                 fn_schema=ConditionEvaluatingToolSchema,
             ),
         ),
@@ -275,7 +298,7 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
             put_on_backburner,
             metadata=ToolMetadata(
                 name="put_on_backburner",
-                description="""If you think the time isn't right to do something, use this tool to put it on the back burner. Provide the exact condition that has to be true before the action can be performed, the action that has to be performed, and the input to the action.""",
+                description=put_on_backburner.__doc__,
                 fn_schema=BackburnerPuttingToolSchema,
             ),
         ),
@@ -283,6 +306,7 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
 
 
 if __name__ == "__main__":
+    callback_manager = CallbackManager([LlamaDebugHandler()])
     local_llm = OpenAILike(
         api_base="http://localhost:1234/v1",
         timeout=600,  # secs
@@ -294,8 +318,8 @@ if __name__ == "__main__":
         is_chat_model=True,
         is_function_calling_model=True,
         context_window=32768,
+        callback_manager=callback_manager,
     )
-
     service_context = ServiceContext.from_defaults(
         # https://docs.llamaindex.ai/en/stable/module_guides/models/embeddings.html#local-embedding-models
         # HuggingFaceEmbedding requires transformers and PyTorch to be installed.
@@ -304,6 +328,8 @@ if __name__ == "__main__":
         # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
         # But, instead of LocalAI, I'm using "LM Studio".
         llm=local_llm,
+        # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
+        callback_manager=callback_manager,
     )
 
     from llama_index.memory import ChatMemoryBuffer
@@ -316,16 +342,10 @@ if __name__ == "__main__":
         chat_store=chat_store,
         chat_store_key="user1",
     )
+
     all_tools = make_tools(service_context, chat_store=chat_store)
 
-    # Override the default system prompt for ReAct chats.
-    with open("system_prompt.md") as f:
-        MY_SYSTEM_PROMPT = f.read()
-
-    from llama_index.agent.react.formatter import ReActChatFormatter
-
-    class MyReActChatFormatter(ReActChatFormatter):
-        system_header = MY_SYSTEM_PROMPT
+    from my_react_chat_formatter import MyReActChatFormatter
 
     chat_formatter = MyReActChatFormatter()
     agent = ReActAgent.from_tools(
@@ -337,3 +357,4 @@ if __name__ == "__main__":
     )
     result = agent.query("Walk the dog.")
     print(result)
+    agent.chat_repl()

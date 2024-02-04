@@ -42,7 +42,9 @@ where `[your thought]` can be whatever your thought is, and `[your answer]` shou
 Remember:
 - Each response of yours should contain one and only one `Thought:`, and it should be at the beginning of your response.
 - You should NEVER say `Observation:` yourself; always wait for the user to tell you.
-- When your response contains a line beginning with `Answer:`, your chain of thought ends, so you should think step-by-step and with extra care. Take a deep breath before getting started.
+- When your response contains a line beginning with `Answer:`, your chain of thought ends.
+
+You don't have to be too careful. Take it easy. This is something that sits in the back of your mind, and you can always come back to it later.
 
 ## Current Conversation
 So far, the current conversation between you and the user is as follows:

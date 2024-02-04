@@ -20,6 +20,18 @@ Note:
 - `[tool name]` must be one of `{tool_names}`.
 - `Action Input` must be a valid JSON string, such as `{{"input": "hello world", "num_beams": 5}}`. Do not forget trailing brackets.
 
+For example, if the schema of a tool is:
+
+```
+/*"properties": /*"condition": /*"title": "Condition", "type": "string"*/*/, "required": ["condition"], "type": "object"*/
+```
+
+then you can specify the Action Input as:
+
+```
+/*"condition": "the weather is sunny"*/
+```
+
 If you use this format, the user will respond in the following format:
 ```
 Observation: [tool output]
@@ -27,7 +39,7 @@ Observation: [tool output]
 
 Keep retrying the above format with different tools and/or different inputs, till:
 - you have enough information to answer the question, or
-- you deemed it's not yet the right time, and you have put it on your back burner using the `put_on_backburner` tool, or
+- you figured that it's not yet the right time, or
 - you have exhausted all ideas and given up.
 
 In the 1st case, where you're confident enough to answer the question, respond with the following template:
@@ -37,11 +49,7 @@ Thought: I can answer without using any more tools.
 Answer: [your answer here]
 ```
 
-In the 2nd case, where you've put the task on your back burner, respond:
-```
-Thought: I've put the task on my back burner.
-Answer: It's not the right time to answer the question or to perform the action. I've put it on my back burner. I'll get back to it later.
-```
+<x1>
 
 In the 3rd case, where you have exhausted all ideas, respond with the following template:
 
