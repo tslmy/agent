@@ -59,13 +59,13 @@ from llama_index.agent import ReActAgent
 is_raining = True
 
 
+class EmptyToolSchema(BaseModel):
+    pass
+
+
 def __tool_for_checking_the_weather(*args, **kwargs):
     """
     Checks the local weather.
-    Arguments:
-        None.
-    Example:
-        {}
     """
     # A stub for checking the weather.
     #
@@ -88,6 +88,7 @@ def create_agent_for_evaluating_conditions(
             metadata=ToolMetadata(
                 name="check_weather",
                 description=__tool_for_checking_the_weather.__doc__,
+                fn_schema=EmptyToolSchema,
             ),
         )
     ]
@@ -110,17 +111,9 @@ def create_agent_for_evaluating_conditions(
     )
 
 
-class DogWalkingToolSchema(BaseModel):
-    pass
-
-
 def __tool_for_walking_the_dog(*args, **kwargs):
     """
-    Walks the dog. Requires a sunny weather.
-    Arguments:
-        None.
-    Example:
-        {}
+    Walks the dog. (Takes no arguments.)
     """
     if is_raining:
         return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
@@ -133,7 +126,7 @@ tools_for_performing_actions = [
         metadata=ToolMetadata(
             name="walk_the_dog",
             description=__tool_for_walking_the_dog.__doc__,
-            fn_schema=DogWalkingToolSchema,
+            fn_schema=EmptyToolSchema,
         ),
     )
 ]
