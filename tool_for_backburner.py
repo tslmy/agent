@@ -16,7 +16,6 @@ This also means the AI needs to know when to give up and remove X from its back 
 
 import asyncio
 import logging
-from dataclasses import dataclass
 from enum import Enum
 from threading import Thread
 from typing import List
@@ -117,7 +116,7 @@ def create_agent_for_performing_actions(
         """
         if is_raining:
             return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
-        return "The dog enjoyed the walk outside in the sunshine. Well done!"
+        return "The dog enjoyed the walk outside in the sunshine."
 
     container_for_tools_for_performing_actions.append(
         FunctionTool(
@@ -170,7 +169,15 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
         """
         # Start the background task of `check_backburner`.
         wait_thread = Thread(
-            target=check_backburner, args=(condition, action, action_input)
+            target=check_backburner,
+            args=(
+                # TODO: Can we take a snapshot/checkpoint of the CoT, instead of passing the strings?
+                #  We might want this because there might should have been more steps to follow in the CoT
+                #  after this current back burner step.
+                condition,
+                action,
+                action_input,
+            ),
         )
         wait_thread.start()
         return I_WILL_GET_BACK_TO_IT
@@ -233,6 +240,7 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
         )
         response = agent_for_performing_actions.chat(
             # TODO: We should do this in a more structured way.
+            #  Can we call the lower-level method that Agent invokes to invoke a tool?
             f"Perform the action `{action}` with input `{action_input}`."
         )
         response = response.response
