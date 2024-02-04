@@ -144,7 +144,7 @@ async def main(message: cl.Message):
     ```
     """
     agent: ReActAgent = cl.user_session.get("agent")
-    response = await cl.make_async(agent.chat)(message.content)
+    response = await agent.achat(message.content)
     response_message = cl.Message(content="")
     response_message.content = response.response
     await response_message.send()

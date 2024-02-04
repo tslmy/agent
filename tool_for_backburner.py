@@ -23,7 +23,7 @@ from typing import List
 
 from llama_index import ServiceContext
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.core.llms.types import ChatMessage
+from llama_index.core.llms.types import ChatMessage, MessageRole
 from llama_index.llms import OpenAILike
 from llama_index.tools import BaseTool, FunctionTool, ToolMetadata
 from pydantic import BaseModel
@@ -65,7 +65,7 @@ class EmptyToolSchema(BaseModel):
 
 def __tool_for_checking_the_weather(*args, **kwargs):
     """
-    Checks the local weather.
+    Checks the local weather. (Takes an empty `{}` as input.)
     """
     # A stub for checking the weather.
     #
@@ -113,7 +113,7 @@ def create_agent_for_evaluating_conditions(
 
 def __tool_for_walking_the_dog(*args, **kwargs):
     """
-    Walks the dog. (Takes no arguments.)
+    Walks the dog. (Takes an empty `{}` as input.)
     """
     if is_raining:
         return "The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
@@ -168,14 +168,16 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         condition: str, action: str, action_input: str, *args, **kwargs
     ):
         """
-        When the time isn't yet right to do something, put it on the back burner by using this tool.
+        Put a task on the back burner. The action will be performed when the condition is met.
 
         Arguments:
         - condition: The condition that has to be met before the action can be performed.
-        - action: The action that has to be performed.
-        - action_input: The input to the action to be performed. (Refer to the schema of that tool itself for the exact syntax to put here.)
+        - action: Name of the tool you want to use.
+        - action_input: The input to the tool, in order to fulfill your goal.
+          (Refer to the schema of that tool itself for the exact JSON syntax to put here.)
 
         Example:
+            If you want to walk the dog when the sky clears up, you can use the following input:
             {"condition": "sunny weather", "action": "walk_the_dog", "action_input": "{}"}
         """
         logger = logging.getLogger("put_on_backburner")
@@ -231,7 +233,9 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
 
     agent_for_performing_actions = create_agent_for_performing_actions(service_context)
 
-    def __perform_action(
+    import chainlit as cl
+
+    async def __perform_action(
         action: str,
         action_input: str,
     ):
@@ -255,7 +259,15 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
         )
         response = response.response
         logger.info(f"Action performing response: {response}")
-        # TODO: How do we expose this to ChainLit?
+        # Add the response as a chat history.
+        agent: ReActAgent = cl.user_session.get("agent")
+        agent.chat_history.append(
+            ChatMessage(role=MessageRole.ASSISTANT, content=response)
+        )
+        # Display this message on the web UI.
+        response_message = cl.Message(content="")
+        response_message.content = response
+        await response_message.send()
         return response
 
     def check_backburner(entry: BackburnerEntry):
@@ -275,9 +287,11 @@ def make_tools(service_context: ServiceContext, chat_store=None) -> List[BaseToo
             condition_status = evaluate_condition(entry.condition)
             if condition_status == ConditionStatus.MET:
                 logger.info(f"Time seems right for `{entry.action}`! Performing it.")
-                result = __perform_action(
-                    entry.action,
-                    entry.action_input,
+                result = asyncio.run(
+                    __perform_action(
+                        entry.action,
+                        entry.action_input,
+                    )
                 )
                 logger.info(f"Result of performing the action: {result}")
                 return
