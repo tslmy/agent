@@ -303,6 +303,14 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
 
 
 if __name__ == "__main__":
+    # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
+    logging.basicConfig(
+        # level=logging.DEBUG,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(rich_tracebacks=True)],
+    )
+
     # "Phoenix can display in real time the traces automatically collected from your LlamaIndex application."
     # https://docs.llamaindex.ai/en/stable/module_guides/observability/observability.html
     import phoenix as px

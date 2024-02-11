@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import uuid
 from threading import Thread
 from typing import List, Optional, Sequence, Union
@@ -122,6 +123,7 @@ class DeferrableReActAgent(ReActAgent):
             > "it's not yet the right time. I've put this on my back burner and will get back to it when the time is right.
             > For the time being, can I help you with something else?"
         """
+        logger = logging.getLogger("_achat_from_task")
         result_output = None
         while True:
             # pass step queue in as argument, assume step executor is stateless
@@ -146,6 +148,9 @@ class DeferrableReActAgent(ReActAgent):
                 # Fulfill this promise in the separate thread we prepared. It's dedicated for running deferred tasks.
                 asyncio.run_coroutine_threadsafe(
                     promise_to_run_task_after_wait, self.deferral_loop
+                )
+                logger.info(
+                    f"Added a task to the deferral loop. Task ID: `{spun_off_task.task_id}`."
                 )
                 # Declare the current chain of thought as done.
                 break
