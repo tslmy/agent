@@ -162,12 +162,15 @@ class DeferrableReActAgent(ReActAgent):
         return self.finalize_response(task.task_id, result_output)
 
     async def _achat_from_task_after_wait(self, task: Task, delay_secs: int = 4):
+        logger = logging.getLogger("_achat_from_task_after_wait")
         await asyncio.sleep(delay_secs)
+        logger.info(f"Running a deferred task. Task ID: `{task.task_id}`.")
         response = await self._achat_from_task(task)
         # Since 1) this method will only be called to handle deferred tasks, and 2) the original response has been
         # finalized (by saying "I've put this on my back burner and will get back to it when the time is right."), we
         # have to explicitly emit this response back to the UI (be it the TUI or the web UI).
         response = response.response
+        logger.info(f"Deferred task `{task.task_id}` responded with `{response}`.")
         self.chat_history.append(
             ChatMessage(role=MessageRole.ASSISTANT, content=response)
         )
