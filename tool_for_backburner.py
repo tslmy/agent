@@ -305,7 +305,7 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
 if __name__ == "__main__":
     # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
     logging.basicConfig(
-        # level=logging.DEBUG,
+        level=logging.DEBUG,
         format="%(message)s",
         datefmt="[%X]",
         handlers=[RichHandler(rich_tracebacks=True)],
