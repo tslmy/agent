@@ -2,7 +2,7 @@ import asyncio
 import logging
 import uuid
 from threading import Thread
-from typing import List, Optional, Sequence, Union
+from typing import Any, List, Optional, Sequence, Union
 
 import chainlit as cl
 from langchain_core.utils import print_text
@@ -108,6 +108,7 @@ class DeferrableReActAgent(ReActAgent):
         task: Task,
         tool_choice: Union[str, dict] = "auto",
         mode: ChatResponseMode = ChatResponseMode.WAIT,
+        **kwargs: Any,
     ) -> AGENT_CHAT_RESPONSE_TYPE:
         """
         This is the same with `BaseAgentRunner._achat` but starts with a pre-composed `Task`, instead of creating its own `Task` by calling `create_task`.
@@ -125,10 +126,12 @@ class DeferrableReActAgent(ReActAgent):
         """
         logger = logging.getLogger("_achat_from_task")
         result_output = None
+        step_id = 0
         while True:
             # pass step queue in as argument, assume step executor is stateless
+            logger.info(f"Running step {step_id} for task `{task.task_id}`.")
             cur_step_output = await self._arun_step(
-                task.task_id, mode=mode, tool_choice=tool_choice
+                task.task_id, mode=mode, tool_choice=tool_choice, **kwargs
             )
             # `cur_step_output.output` may be:
             # - "Observation: The dog doesn't want to go out in the rain. You should wait till it's sunny outside."
@@ -159,6 +162,7 @@ class DeferrableReActAgent(ReActAgent):
                 break
             # ensure tool_choice does not cause endless loops
             tool_choice = "auto"
+            step_id += 1
         return self.finalize_response(task.task_id, result_output)
 
     async def _achat_from_task_after_wait(self, task: Task, delay_secs: int = 4):
