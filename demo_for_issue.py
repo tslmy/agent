@@ -35,10 +35,10 @@ agent = ReActAgent.from_tools(
 
 QUERY = "Name a type of drink that I enjoy, and then look up its country of origin. Be concise."
 
-print("With stream_chat:")
+print(">>>>>>>> With stream_chat:")
 response = agent.stream_chat(QUERY)
-print(response)
+print(f">>>>>>>> Response: {response.response}")
 
-print("With chat:")
+print(">>>>>>>> With chat:")
 response = agent.chat(QUERY)
-print(response)
+print(f">>>>>>>> Response: {response.response}")
