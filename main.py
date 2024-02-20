@@ -4,6 +4,7 @@ import logging
 import chainlit as cl
 from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
+from llama_index.chat_engine.types import StreamingAgentChatResponse
 from rich.logging import RichHandler
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
@@ -106,9 +107,12 @@ async def main(message: cl.Message):
     ChainLit provides a web GUI for this application.
     """
     agent: ReActAgent = cl.user_session.get("agent")
-    response = await agent.achat(message.content)
+    response: StreamingAgentChatResponse = agent.stream_chat(message.content)
     response_message = cl.Message(content="")
-    response_message.content = response.response
+    for token in response.response_gen:
+        await response_message.stream_token(token=token)
+    if response.response:
+        response_message.content = response.response
     await response_message.send()
 
 
