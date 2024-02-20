@@ -32,8 +32,13 @@ agent = ReActAgent.from_tools(
     react_chat_formatter=chat_formatter,
     callback_manager=callback_manager,
 )
+
 QUERY = "Name a type of drink that I enjoy, and then look up its country of origin. Be concise."
+
 print("With stream_chat:")
-agent.stream_chat(QUERY)
+response = agent.stream_chat(QUERY)
+print(response)
+
 print("With chat:")
-agent.chat(QUERY)
+response = agent.chat(QUERY)
+print(response)
