@@ -5,12 +5,7 @@ Make a tool for accessing my personal notes, stored in a directory of text files
 import logging
 from typing import Optional
 
-from llama_index.core import (
-    ServiceContext,
-    SimpleDirectoryReader,
-    StorageContext,
-    VectorStoreIndex,
-)
+from llama_index.core import SimpleDirectoryReader, StorageContext, VectorStoreIndex
 from llama_index.core.tools import BaseTool
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from pydantic import BaseModel
@@ -22,7 +17,6 @@ SHOULD_IGNORE_PERSISTED_INDEX = False
 def __create_index(
     input_dir: str,
     storage_context: Optional[StorageContext] = None,
-    service_context: Optional[ServiceContext] = None,
 ) -> VectorStoreIndex:
     """
     Creates an index from a directory of documents.
@@ -39,21 +33,19 @@ def __create_index(
     return VectorStoreIndex.from_documents(
         # https://docs.llamaindex.ai/en/stable/api_reference/indices/vector_store.html#llama_index.indices.vector_store.base.VectorStoreIndex.from_documents
         documents=documents,
-        service_context=service_context,
         storage_context=storage_context,
         show_progress=True,
     )
 
 
-def make_tool(service_context: ServiceContext) -> BaseTool:
+def make_tool() -> BaseTool:
     """
     Creates a tool for accessing my private information, or anything about me.
     These can be my notes, my calendar, my emails, etc.
     """
     # An index is a lightweight view to the database.
-    notes_index = __get_index(service_context)
+    notes_index = __get_index()
     notes_query_engine = notes_index.as_query_engine(
-        service_context=service_context,
         similarity_top_k=5,
         # For a query engine hidden inside an Agent, streaming really doesn't make sense.
         # https://docs.llamaindex.ai/en/stable/module_guides/deploying/query_engine/streaming.html#streaming
@@ -86,10 +78,8 @@ def make_tool(service_context: ServiceContext) -> BaseTool:
     sub_question_query_engine = SubQuestionQueryEngine.from_defaults(
         query_engine_tools=[notes_query_engine_tool],
         question_gen=LLMQuestionGenerator.from_defaults(
-            service_context=service_context,
             prompt_template_str=SUB_QUESTION_PROMPT_TEMPLATE_WITH_KEYWORDS,
         ),
-        service_context=service_context,
         verbose=True,
     )
     # Convert it to a tool.
@@ -110,7 +100,7 @@ def make_tool(service_context: ServiceContext) -> BaseTool:
     return sub_question_query_engine_tool
 
 
-def __get_index(service_context: ServiceContext):
+def __get_index():
     logger = logging.getLogger("__get_index")
     # https://www.trychroma.com/
     import chromadb
@@ -148,7 +138,6 @@ def __get_index(service_context: ServiceContext):
         return __create_index(
             input_dir=PATH_TO_NOTES,
             storage_context=storage_context,
-            service_context=service_context,
         )
         # If we are using file-based storage, we would have to call `persist` manually:
         # index.storage_context.persist(persist_dir=STORAGE_DIR)
@@ -159,6 +148,5 @@ def __get_index(service_context: ServiceContext):
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     return VectorStoreIndex.from_vector_store(
         vector_store,
-        service_context=service_context,
         storage_context=storage_context,
     )

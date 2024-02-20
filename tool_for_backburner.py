@@ -20,7 +20,7 @@ from enum import Enum
 from threading import Thread
 from typing import List
 
-from llama_index.core import ServiceContext
+from llama_index.core import Settings
 from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
 from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.core.tools import BaseTool, FunctionTool, ToolMetadata
@@ -54,9 +54,7 @@ class EmptyToolSchema(BaseModel):
     pass
 
 
-def create_agent_for_evaluating_conditions(
-    service_context: ServiceContext,
-) -> ReActAgent:
+def create_agent_for_evaluating_conditions() -> ReActAgent:
     # ------------------- Define tools of this agent here -------------------
 
     def __tool_for_checking_the_weather(*args, **kwargs):
@@ -97,15 +95,12 @@ def create_agent_for_evaluating_conditions(
     chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
         tools=all_tools,
-        llm=service_context.llm,
         verbose=True,
         react_chat_formatter=chat_formatter,
-        callback_manager=service_context.callback_manager,
     )
 
 
 def create_agent_for_performing_actions(
-    service_context: ServiceContext,
     container_for_tools_for_performing_actions: List[BaseTool],
 ) -> ReActAgent:
     # ------------------- Define tools of this agent here -------------------
@@ -135,14 +130,12 @@ def create_agent_for_performing_actions(
     chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
         tools=container_for_tools_for_performing_actions,
-        llm=service_context.llm,
         verbose=True,
         react_chat_formatter=chat_formatter,
-        callback_manager=service_context.callback_manager,
     )
 
 
-def make_tools(service_context: ServiceContext) -> List[BaseTool]:
+def make_tools() -> List[BaseTool]:
 
     tools_for_performing_actions: List[BaseTool] = []
 
@@ -182,9 +175,7 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
         wait_thread.start()
         return I_WILL_GET_BACK_TO_IT
 
-    agent_for_evaluating_conditions = create_agent_for_evaluating_conditions(
-        service_context
-    )
+    agent_for_evaluating_conditions = create_agent_for_evaluating_conditions()
 
     class ConditionEvaluatingToolSchema(BaseModel):
         condition: str
@@ -214,7 +205,6 @@ def make_tools(service_context: ServiceContext) -> List[BaseTool]:
             return ConditionStatus.MET
 
     agent_for_performing_actions = create_agent_for_performing_actions(
-        service_context,
         container_for_tools_for_performing_actions=tools_for_performing_actions,
     )
 
@@ -323,17 +313,13 @@ if __name__ == "__main__":
         context_window=32768,
         callback_manager=callback_manager,
     )
-    service_context = ServiceContext.from_defaults(
-        # https://docs.llamaindex.ai/en/stable/module_guides/models/embeddings.html#local-embedding-models
-        # HuggingFaceEmbedding requires transformers and PyTorch to be installed.
-        # Run `pip install transformers torch`.
-        embed_model="local",
-        # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
-        # But, instead of LocalAI, I'm using "LM Studio".
-        llm=local_llm,
-        # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
-        callback_manager=callback_manager,
-    )
+    # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
+    # TODO: Check if this is still the case with `Settings` in 0.10.x.
+    Settings.callback_manager = callback_manager
+    # https://docs.llamaindex.ai/en/stable/module_guides/models/embeddings.html#local-embedding-models
+    # HuggingFaceEmbedding requires transformers and PyTorch to be installed.
+    # Run `pip install transformers torch`.
+    Settings.embed_model = "local"
 
     from llama_index.core.memory import ChatMemoryBuffer
     from llama_index.core.storage.chat_store import SimpleChatStore
@@ -346,7 +332,7 @@ if __name__ == "__main__":
         chat_store_key="user1",
     )
 
-    all_tools = make_tools(service_context)
+    all_tools = make_tools()
 
     from my_react_chat_formatter import MyReActChatFormatter
 

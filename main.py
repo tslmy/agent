@@ -2,7 +2,6 @@
 import logging
 
 import chainlit as cl
-from llama_index.core import ServiceContext
 from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
 from llama_index.llms.openai_like import OpenAILike
 from rich.logging import RichHandler
@@ -48,8 +47,11 @@ def create_agent(
     is_general_purpose: bool = False,
 ) -> ReActAgent:
     callback_manager = create_callback_manager(should_use_chainlit)
+    from llama_index.core import Settings
 
-    local_llm = OpenAILike(
+    # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
+    # But, instead of LocalAI, I'm using "LM Studio".
+    Settings.llm = OpenAILike(
         api_base="http://localhost:1234/v1",
         timeout=600,  # secs
         temperature=0.01,
@@ -63,28 +65,23 @@ def create_agent(
         streaming=True,
         callback_manager=callback_manager,
     )
-
-    service_context = ServiceContext.from_defaults(
-        # https://docs.llamaindex.ai/en/stable/module_guides/models/embeddings.html#local-embedding-models
-        # HuggingFaceEmbedding requires transformers and PyTorch to be installed.
-        # Run `pip install transformers torch`.
-        embed_model="local",
-        # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
-        # But, instead of LocalAI, I'm using "LM Studio".
-        llm=local_llm,
-        # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
-        callback_manager=callback_manager,
-    )
+    # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
+    # TODO: Check if this is still the case with `Settings` in 0.10.x.
+    Settings.callback_manager = callback_manager
+    # https://docs.llamaindex.ai/en/stable/module_guides/models/embeddings.html#local-embedding-models
+    # HuggingFaceEmbedding requires transformers and PyTorch to be installed.
+    # Run `pip install transformers torch`.
+    Settings.embed_model = "local"
 
     from tool_for_backburner import make_tools as make_tools_for_backburner
     from tool_for_my_notes import make_tool as make_tool_for_my_notes
     from tool_for_wikipedia import make_tool as make_tool_for_wikipedia
 
-    all_tools = make_tools_for_backburner(service_context)
+    all_tools = make_tools_for_backburner()
     if is_general_purpose:
         all_tools += [
-            make_tool_for_my_notes(service_context),
-            make_tool_for_wikipedia(service_context),
+            make_tool_for_my_notes(),
+            make_tool_for_wikipedia(),
         ]
     # TODO: When we have too many tools for the Agent to comprehend in one go (In other words, the sheer amounts of two
     #  descriptions has taken most of the context window.), try `custom_obj_retriever` in
@@ -96,7 +93,6 @@ def create_agent(
     chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
         tools=all_tools,
-        llm=local_llm,
         verbose=True,
         react_chat_formatter=chat_formatter,
         callback_manager=callback_manager,
