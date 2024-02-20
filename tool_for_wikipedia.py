@@ -15,7 +15,6 @@ reader = WikipediaReader()
 def make_tool():
     return OnDemandLoaderTool.from_defaults(
         reader,
-        index_kwargs={"service_context": service_context},
         name="look_up_wikipedia",
         description="""Looks up information from Wikipedia pages.
 For example, to answer "Who proposed general relativity?", you can use the following Action Input:

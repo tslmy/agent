@@ -1314,9 +1314,11 @@ files = [
 ]
 
 [package.dependencies]
+aiohttp = {version = "*", optional = true, markers = "extra == \"inference\""}
 filelock = "*"
 fsspec = ">=2023.5.0"
 packaging = ">=20.9"
+pydantic = {version = ">1.1,<3.0", optional = true, markers = "python_version > \"3.8\" and extra == \"inference\""}
 pyyaml = ">=5.1"
 requests = "*"
 tqdm = ">=4.42.1"
@@ -1588,6 +1590,23 @@ postgres = ["asyncpg (>=0.28.0,<0.29.0)", "pgvector (>=0.1.0,<0.2.0)", "psycopg2
 query-tools = ["guidance (>=0.0.64,<0.0.65)", "jsonpath-ng (>=1.6.0,<2.0.0)", "lm-format-enforcer (>=0.4.3,<0.5.0)", "rank-bm25 (>=0.2.2,<0.3.0)", "scikit-learn", "spacy (>=3.7.1,<4.0.0)"]
 
 [[package]]
+name = "llama-index-embeddings-huggingface"
+version = "0.1.1"
+description = "llama-index embeddings huggingface integration"
+optional = false
+python-versions = ">=3.8.1,<3.12"
+files = [
+    {file = "llama_index_embeddings_huggingface-0.1.1-py3-none-any.whl", hash = "sha256:b483132f7124a0edc4e2906af6308367757c27be96fa3f68b33b6d0ca12d47dd"},
+    {file = "llama_index_embeddings_huggingface-0.1.1.tar.gz", hash = "sha256:85278b3e013ed620d75691154db89c6329df214dfcf6dca2194f04d1c397d69d"},
+]
+
+[package.dependencies]
+huggingface-hub = {version = ">=0.19.0", extras = ["inference"]}
+llama-index-core = ">=0.10.1,<0.11.0"
+torch = ">=2.1.2,<3.0.0"
+transformers = ">=4.37.0,<5.0.0"
+
+[[package]]
 name = "llama-index-embeddings-openai"
 version = "0.1.3"
 description = "llama-index embeddings openai integration"
@@ -1639,6 +1658,20 @@ langchain = ["langchain (>=0.0.303)"]
 local-models = ["optimum[onnxruntime] (>=1.13.2,<2.0.0)", "sentencepiece (>=0.1.99,<0.2.0)", "transformers[torch] (>=4.33.1,<5.0.0)"]
 postgres = ["asyncpg (>=0.28.0,<0.29.0)", "pgvector (>=0.1.0,<0.2.0)", "psycopg2-binary (>=2.9.9,<3.0.0)"]
 query-tools = ["guidance (>=0.0.64,<0.0.65)", "jsonpath-ng (>=1.6.0,<2.0.0)", "lm-format-enforcer (>=0.4.3,<0.5.0)", "rank-bm25 (>=0.2.2,<0.3.0)", "scikit-learn", "spacy (>=3.7.1,<4.0.0)"]
+
+[[package]]
+name = "llama-index-llms-ollama"
+version = "0.1.1"
+description = "llama-index llms ollama integration"
+optional = false
+python-versions = ">=3.8.1,<3.12"
+files = [
+    {file = "llama_index_llms_ollama-0.1.1-py3-none-any.whl", hash = "sha256:d7094f3971b81c9f59a666712567a610127a406844486238797ed87ea164131b"},
+    {file = "llama_index_llms_ollama-0.1.1.tar.gz", hash = "sha256:4d2a2288493e02e343a2206c5e0d13dc0fe36a72882488ba1b20da37e182a9f1"},
+]
+
+[package.dependencies]
+llama-index-core = ">=0.10.1,<0.11.0"
 
 [[package]]
 name = "llama-index-llms-openai"
@@ -5196,4 +5229,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "62e168081248155e9a28ad2b916f491646d08a7685945218f28890ba3b1e26a6"
+content-hash = "c64f81f3b83b8fd224710f5d5631bdb6284f9e35455bff6dc84e9af69912f5bf"

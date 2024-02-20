@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 import logging
 
+# TODO: Chainlit doesn't yet work with LlamaIndex 0.10.x. https://github.com/Chainlit/chainlit/issues/752
 import chainlit as cl
 from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.chat_engine.types import StreamingAgentChatResponse
 from rich.logging import RichHandler
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
@@ -49,7 +48,7 @@ def create_agent(
 ) -> ReActAgent:
     callback_manager = create_callback_manager(should_use_chainlit)
     from llama_index.core import Settings
-    from llama_index.llms import Ollama
+    from llama_index.llms.ollama import Ollama
 
     # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
     # But, instead of LocalAI, I'm using "LM Studio".
@@ -58,6 +57,7 @@ def create_agent(
         timeout=600,  # secs
         streaming=True,
         callback_manager=callback_manager,
+        additional_kwargs={"stop": ["Observation:"]},
     )
     # `ServiceContext.from_defaults` doesn't take callback manager from the LLM by default.
     # TODO: Check if this is still the case with `Settings` in 0.10.x.
@@ -107,7 +107,7 @@ async def main(message: cl.Message):
     ChainLit provides a web GUI for this application.
     """
     agent: ReActAgent = cl.user_session.get("agent")
-    response: StreamingAgentChatResponse = agent.stream_chat(message.content)
+    response = agent.stream_chat(message.content)
     response_message = cl.Message(content="")
     for token in response.response_gen:
         await response_message.stream_token(token=token)
