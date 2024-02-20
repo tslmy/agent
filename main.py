@@ -3,7 +3,7 @@ import logging
 
 import chainlit as cl
 from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.llms.openai_like import OpenAILike
+from llama_index.callbacks import CallbackManager, LlamaDebugHandler
 from rich.logging import RichHandler
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
@@ -44,24 +44,17 @@ from llama_index.core.agent import ReActAgent
 
 def create_agent(
     should_use_chainlit: bool,
-    is_general_purpose: bool = False,
+    is_general_purpose: bool = True,
 ) -> ReActAgent:
     callback_manager = create_callback_manager(should_use_chainlit)
     from llama_index.core import Settings
+    from llama_index.llms import Ollama
 
     # https://docs.llamaindex.ai/en/stable/examples/llm/localai.html
     # But, instead of LocalAI, I'm using "LM Studio".
-    Settings.llm = OpenAILike(
-        api_base="http://localhost:1234/v1",
+    Settings.llm = Ollama(
+        model="zephyr:7b-beta",
         timeout=600,  # secs
-        temperature=0.01,
-        api_key="loremIpsum",
-        # Honestly, this model name can be arbitrary.
-        # I'm using this: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta .
-        model="zephyr beta 7B q5_k_m gguf",
-        is_chat_model=True,
-        is_function_calling_model=True,
-        context_window=32768,
         streaming=True,
         callback_manager=callback_manager,
     )
