@@ -20,11 +20,11 @@ from enum import Enum
 from threading import Thread
 from typing import List
 
-from llama_index import ServiceContext
-from llama_index.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.core.llms.types import ChatMessage, MessageRole
-from llama_index.llms import OpenAILike
-from llama_index.tools import BaseTool, FunctionTool, ToolMetadata
+from llama_index.core import ServiceContext
+from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
+from llama_index.core.llms import ChatMessage, MessageRole
+from llama_index.core.tools import BaseTool, FunctionTool, ToolMetadata
+from llama_index.llms.openai_like import OpenAILike
 from pydantic import BaseModel
 from rich.logging import RichHandler
 
@@ -45,7 +45,7 @@ class ConditionStatus(Enum):
     WILL_NEVER_BE_MET = 3
 
 
-from llama_index.agent import ReActAgent
+from llama_index.core.agent import ReActAgent
 
 is_raining = True
 
@@ -85,7 +85,7 @@ def create_agent_for_evaluating_conditions(
         )
     ]
     # -----------------------------------------------------------------------
-    from llama_index.agent.react.formatter import ReActChatFormatter
+    from llama_index.core.agent import ReActChatFormatter
 
     # Override the default system prompt for ReAct chats.
     with open("system_prompt_for_condition_evaluator.md") as f:
@@ -335,8 +335,8 @@ if __name__ == "__main__":
         callback_manager=callback_manager,
     )
 
-    from llama_index.memory import ChatMemoryBuffer
-    from llama_index.storage.chat_store import SimpleChatStore
+    from llama_index.core.memory import ChatMemoryBuffer
+    from llama_index.core.storage.chat_store import SimpleChatStore
 
     chat_store = SimpleChatStore()
     chat_memory = ChatMemoryBuffer.from_defaults(

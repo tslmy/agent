@@ -7,15 +7,19 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-llama-index = "^0.9.39"
 chainlit = "^1.0.200"
 rich = "^13.7.0"
-arize-phoenix = "^2.7.0"
+arize-phoenix = "^3.2.1"
 llama-hub = "^0.0.76"
 chromadb = "^0.4.22"
 wikipedia = "^1.4.0"
 transformers = "^4.37.2"
 torch = "^2.2.0"
+llama-index = "^0.10.7"
+llama-index-vector-stores-chroma = "^0.1.1"
+llama-index-llms-openai-like = "^0.1.1"
+llama-index-readers-wikipedia = "^0.1.2"
+llama-index-callbacks-arize-phoenix = "^0.1.2"
 
 
 [build-system]

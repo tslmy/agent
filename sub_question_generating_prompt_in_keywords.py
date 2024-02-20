@@ -7,12 +7,12 @@ which, instead of using full sentences, uses keywords to generate sub-questions.
 
 import json
 
-from llama_index.question_gen.prompts import (
+from llama_index.core.question_gen.prompts import (
     SUFFIX,
     example_query_str,
     example_tools_str,
 )
-from llama_index.question_gen.types import SubQuestion
+from llama_index.core.question_gen.types import SubQuestion
 
 PREFIX = """\
 Given a user question and a list of tools, output a few relevant sub-queries (in a Markdown code fence of JSON syntax) \

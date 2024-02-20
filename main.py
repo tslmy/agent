@@ -2,9 +2,9 @@
 import logging
 
 import chainlit as cl
-from llama_index import ServiceContext
-from llama_index.callbacks import CallbackManager, LlamaDebugHandler
-from llama_index.llms import OpenAILike
+from llama_index.core import ServiceContext
+from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
+from llama_index.llms.openai_like import OpenAILike
 from rich.logging import RichHandler
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
@@ -23,13 +23,14 @@ install(show_locals=True)
 
 # "Phoenix can display in real time the traces automatically collected from your LlamaIndex application."
 # https://docs.llamaindex.ai/en/stable/module_guides/observability/observability.html
+# Or https://docs.arize.com/phoenix/integrations/llamaindex
 import phoenix as px
 
 px.launch_app()
 
-import llama_index
+from llama_index.core import set_global_handler
 
-llama_index.set_global_handler("arize_phoenix")
+set_global_handler("arize_phoenix")
 
 
 def create_callback_manager(should_use_chainlit: bool = True):
@@ -39,7 +40,7 @@ def create_callback_manager(should_use_chainlit: bool = True):
     return CallbackManager(callback_handlers)
 
 
-from llama_index.agent import ReActAgent
+from llama_index.core.agent import ReActAgent
 
 
 def create_agent(

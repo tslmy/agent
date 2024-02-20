@@ -5,14 +5,14 @@ Make a tool for accessing my personal notes, stored in a directory of text files
 import logging
 from typing import Optional
 
-from llama_index import (
+from llama_index.core import (
     ServiceContext,
     SimpleDirectoryReader,
     StorageContext,
     VectorStoreIndex,
 )
-from llama_index.tools import BaseTool
-from llama_index.vector_stores import ChromaVectorStore
+from llama_index.core.tools import BaseTool
+from llama_index.vector_stores.chroma import ChromaVectorStore
 from pydantic import BaseModel
 
 PATH_TO_NOTES = "demo-notes"
@@ -60,8 +60,7 @@ def make_tool(service_context: ServiceContext) -> BaseTool:
         streaming=False,
     )
     # Convert it to a tool.
-    from llama_index.tools import ToolMetadata
-    from llama_index.tools.query_engine import QueryEngineTool
+    from llama_index.core.tools import QueryEngineTool, ToolMetadata
 
     class NotesQueryingToolSchema(BaseModel):
         input: str
@@ -77,8 +76,8 @@ def make_tool(service_context: ServiceContext) -> BaseTool:
     )
     # Sub Question Query Engine: breaks down the user's question into sub questions.
     # https://docs.llamaindex.ai/en/stable/examples/query_engine/sub_question_query_engine.html
-    from llama_index.query_engine import SubQuestionQueryEngine
-    from llama_index.question_gen.llm_generators import LLMQuestionGenerator
+    from llama_index.core.query_engine import SubQuestionQueryEngine
+    from llama_index.core.question_gen import LLMQuestionGenerator
 
     from sub_question_generating_prompt_in_keywords import (
         SUB_QUESTION_PROMPT_TEMPLATE_WITH_KEYWORDS,

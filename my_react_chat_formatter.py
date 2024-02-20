@@ -2,10 +2,13 @@
 import logging
 from typing import List, Optional, Sequence
 
-from llama_index.agent import ReActChatFormatter
-from llama_index.agent.react.types import BaseReasoningStep, ObservationReasoningStep
-from llama_index.core.llms.types import ChatMessage
-from llama_index.tools import BaseTool
+from llama_index.core.agent import ReActChatFormatter
+from llama_index.core.agent.react.types import (
+    BaseReasoningStep,
+    ObservationReasoningStep,
+)
+from llama_index.core.llms import ChatMessage
+from llama_index.core.tools import BaseTool
 
 from tool_for_backburner import I_WILL_GET_BACK_TO_IT
 
