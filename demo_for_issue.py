@@ -21,18 +21,21 @@ all_tools = [
 from my_react_chat_formatter import MyReActChatFormatter
 
 chat_formatter = MyReActChatFormatter()
-agent = ReActAgent.from_tools(
-    tools=all_tools,
-    verbose=True,
-    react_chat_formatter=chat_formatter,
-)
 
 QUERY = "Name a type of drink that I enjoy, and then look up its country of origin. Be concise."
 
 print(">>>>>>>> With stream_chat:")
+agent = ReActAgent.from_tools(
+    tools=all_tools,
+    react_chat_formatter=chat_formatter,
+)
 response = agent.stream_chat(QUERY)
 print(f">>>>>>>> Response: {response.response}")
 
+agent = ReActAgent.from_tools(
+    tools=all_tools,
+    react_chat_formatter=chat_formatter,
+)
 print(">>>>>>>> With chat:")
 response = agent.chat(QUERY)
 print(f">>>>>>>> Response: {response.response}")
