@@ -27,7 +27,7 @@ REMEMBER: You have to use the `put_on_backburner` tool before you can say `Answe
 
 
 class MyReActChatFormatter(ReActChatFormatter):
-    system_header = MY_SYSTEM_PROMPT
+    system_header: str = MY_SYSTEM_PROMPT
 
     def format(
         self,

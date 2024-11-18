@@ -2,6 +2,7 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 
 A good starting point for building your own personal AI.
 
@@ -54,13 +55,11 @@ chainlit run main.py -w
 
 This repo uses pre-commit hooks to automate many chores. [Install](https://pre-commit.com/#install) them.
 
-As a Python-based project, this repo registers all its dependencies in the `pyproject.toml` file. Use Poetry to [install](https://python-poetry.org/docs/basic-usage/#installing-dependencies) them.
+As a Python-based project, this repo registers all its dependencies in the `pyproject.toml` file. Use `uv` to install them:
 
 ```bash
-PYTHONPATH=. poetry install --no-root
+uv sync
 ```
-
-We use `--no-root` because we don't want to install the project itself as a dependency. It's an application, not a library.
 
 As [this article](https://bic-berkeley.github.io/psych-214-fall-2016/using_pythonpath.html) explains:
 > The main use of PYTHONPATH is when we are developing some code that we want to be able to import from Python, but that we have not yet made into an installable Python package.
@@ -86,15 +85,15 @@ Similarly, I also overrode the **agent-level system prompt**. Since it's quite a
 
 ### Count of line of codes by language
 
-Generated via `cloc --md .`:
+Generated via `cloc --md . --vcs git`:
 
 Language|files|blank|comment|code
 :-------|-------:|-------:|-------:|-------:
-JSON|111|0|0|419
-XML|7|0|0|411
-Python|4|66|87|231
-Markdown|5|62|0|103
-TOML|2|26|36|43
+Python|7|135|176|564
+JSON|2|0|0|310
+Markdown|6|104|0|189
+XML|7|0|0|78
+TOML|2|25|37|50
 YAML|1|0|5|41
 --------|--------|--------|--------|--------
-SUM:|130|154|128|1248
+SUM:|25|264|218|1232

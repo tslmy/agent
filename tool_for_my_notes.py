@@ -5,6 +5,7 @@ Make a tool for accessing my personal notes, stored in a directory of text files
 import logging
 from typing import Optional
 
+from chromadb.errors import InvalidCollectionException
 from llama_index.core import SimpleDirectoryReader, StorageContext, VectorStoreIndex
 from llama_index.core.tools import BaseTool
 from llama_index.vector_stores.chroma import ChromaVectorStore
@@ -115,7 +116,7 @@ def __get_index():
     )
     try:
         chroma_collection = db.get_collection("notes")
-    except ValueError:
+    except InvalidCollectionException:
         logger.info("The Chrome DB collection does not exist. Creating.")
         should_create_index = True
     else:

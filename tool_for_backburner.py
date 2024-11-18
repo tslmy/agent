@@ -90,7 +90,7 @@ def create_agent_for_evaluating_conditions() -> ReActAgent:
         MY_SYSTEM_PROMPT = f.read()
 
     class MyReActChatFormatter(ReActChatFormatter):
-        system_header = MY_SYSTEM_PROMPT
+        system_header: str = MY_SYSTEM_PROMPT
 
     chat_formatter = MyReActChatFormatter()
     return ReActAgent.from_tools(
