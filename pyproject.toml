@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "agent"
+name = "llamacron"
 version = "0.1.0"
-description = "A LLM-powered agent."
+description = "A LLM-powered agent that is capable of deferring tasks till when the time is right."
 authors = ["Mingyang Li <github-agent@myli.page>"]
 readme = "README.md"
 
