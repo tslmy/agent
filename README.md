@@ -67,6 +67,16 @@ This means a traditional, static cron job won’t cut it. The AI has to somehow 
 
 ## Features
 
+> [!NOTE]
+> Other branches:
+> * Find in the `deferrable_custom_agent` branch an attempt to implement a subclass that provides the deferrability more naturally.
+> * Find in the `dev` branch an attempt to modernize the repo with `uv`.
+>
+> Other repos:
+> * https://github.com/StarsRail/Cocai is a chatbot that plays Call of Cthulhu (CoC) with you. I'm devoting more time to it now.
+> * https://github.com/colabear-info/agent is an AI group chat where agents keep discussing and you can interrupt / contribute at any time.
+
+
 ### Local-first: nothing goes out
 Unless you ask it to search Wikipedia, etc., no internet connection is required.
 
