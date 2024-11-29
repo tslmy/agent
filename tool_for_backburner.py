@@ -28,6 +28,8 @@ from llama_index.llms.openai_like import OpenAILike
 from pydantic import BaseModel
 from rich.logging import RichHandler
 
+from deferrable_react_agent import DeferrableReActAgent
+
 I_WILL_GET_BACK_TO_IT = "I'll keep an eye on it. I've put this on the back burner. Consider this done for now. I can now answer without using any more tools by just saying I'll get back to it later."
 
 # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
@@ -287,18 +289,28 @@ def make_tools() -> List[BaseTool]:
                 fn_schema=ConditionEvaluatingToolSchema,
             ),
         ),
-        FunctionTool(
-            put_on_backburner,
-            metadata=ToolMetadata(
-                name="put_on_backburner",
-                description=put_on_backburner.__doc__,
-                fn_schema=BackburnerPuttingToolSchema,
-            ),
-        ),
     ] + tools_for_performing_actions
 
 
 if __name__ == "__main__":
+    # https://rich.readthedocs.io/en/latest/logging.html#handle-exceptions
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(rich_tracebacks=True)],
+    )
+
+    # "Phoenix can display in real time the traces automatically collected from your LlamaIndex application."
+    # https://docs.llamaindex.ai/en/stable/module_guides/observability/observability.html
+    import phoenix as px
+
+    px.launch_app()
+
+    import llama_index
+
+    llama_index.set_global_handler("arize_phoenix")
+    # ------------------- Define the main function here -------------------
     callback_manager = CallbackManager([LlamaDebugHandler()])
     local_llm = OpenAILike(
         api_base="http://localhost:1234/v1",
@@ -337,13 +349,13 @@ if __name__ == "__main__":
     from my_react_chat_formatter import MyReActChatFormatter
 
     chat_formatter = MyReActChatFormatter()
-    agent = ReActAgent.from_tools(
+    agent = DeferrableReActAgent.from_tools(
         tools=all_tools,
         llm=local_llm,
         verbose=True,
         react_chat_formatter=chat_formatter,
         memory=chat_memory,
     )
-    result = agent.query("Walk the dog.")
-    print(result)
+    result = asyncio.run(agent.achat("Walk the dog."))
+    print(f"Final response: {result}")
     agent.chat_repl()

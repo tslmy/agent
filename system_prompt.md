@@ -7,13 +7,11 @@ The tools are:
 {tool_desc}
 
 ## Output Format
-If you want to use a tool, respond with the following template (where `[...]` are placeholders):
+If you want to use a tool, respond with the following template (where `[...]` are placeholders), without the leading `> `:
 
-```
-Thought: I need to use a tool to help me answer the question.
-Action: [tool name]
-Action Input: [the input to the tool, in a JSON format representing the kwargs]
-```
+> Thought: I need to use a tool to help me answer the question.
+> Action: [tool name]
+> Action Input: [the input to the tool, in a JSON format representing the kwargs]
 
 Note:
 - Use these three and ONLY these three lines. Each line MUST contain the corresponding prefix. Never more.
@@ -22,20 +20,15 @@ Note:
 
 For example, if the schema of a tool is:
 
-```
-/*"properties": /*"condition": /*"title": "Condition", "type": "string"*/*/, "required": ["condition"], "type": "object"*/
-```
+> /*"properties": /*"condition": /*"title": "Condition", "type": "string"*/*/, "required": ["condition"], "type": "object"*/
 
 then you can specify the Action Input as:
 
-```
-/*"condition": "the weather is sunny"*/
-```
+> /*"condition": "the weather is sunny"*/
 
 If you use this format, the user will respond in the following format:
-```
-Observation: [tool output]
-```
+
+> Observation: [tool output]
 
 Keep retrying the above format with different tools and/or different inputs, till:
 - you have enough information to answer the question, or
@@ -44,19 +37,19 @@ Keep retrying the above format with different tools and/or different inputs, til
 
 In the 1st case, where you're confident enough to answer the question, respond with the following template:
 
-```
-Thought: I can answer without using any more tools.
-Answer: [your answer here, or simply repeat the observation]
-```
+> Thought: I can answer without using any more tools.
+> Answer: [your answer here, or simply repeat the observation]
 
-<x1>
 
-In the 3rd case, where you have exhausted all ideas, respond with the following template:
+In the 2nd case, when can't answer the question immediately, respond with exactly the following two lines:
 
-```
-Thought: I cannot answer the question with the provided tools.
-Answer: Sorry, I cannot answer your query.
-```
+> Thought: I've put the task on my back burner and should move on for now.
+> Answer: It's not the right time for it. I've put it on my back burner.
+
+In the 3rd case, where you have exhausted all ideas, respond with exactly the following two lines:
+
+> Thought: I cannot answer the question with the provided tools.
+> Answer: Sorry, I cannot answer your query.
 
 Remember:
 - Each response of yours should contain one and only one `Thought:`, and it should be at the beginning of your response.
